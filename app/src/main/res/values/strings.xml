@@ -1,10 +1,7 @@
 <resources>
 	<string name="app_name">AppLock</string>
 
+	<string name="message">Under surveillance</string>
 	<string name="hello_world">Hello world!</string>
 	<string name="action_settings">Settings</string>
-	<string name="title_activity_password">PasswordActivity</string>
-
-<!-- TODO: Remove or change this placeholder text -->
-	<string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

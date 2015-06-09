@@ -32,6 +32,7 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 
 	private View view = null;
 	private String packageName = null;
+	private boolean initialized = false;
 	private OnPasswordListener onPasswordListener = null;
 	private OnCancelListener onCancelListener = null;
 
@@ -82,6 +83,7 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 	}
 
 	public void setPackageName(String packageName) {
+		if(initialized) return;
 		PackageManager pm = getContext().getPackageManager();
 		try {
 			ApplicationInfo info = pm.getApplicationInfo(packageName, 0);
@@ -93,6 +95,7 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 			icon.setBounds(0, 0, size, size);
 			name.setCompoundDrawables(icon, null, null, null);
 			this.packageName = packageName;
+			initialized = true;
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

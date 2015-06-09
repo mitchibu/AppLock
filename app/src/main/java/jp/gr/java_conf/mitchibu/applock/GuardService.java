@@ -3,12 +3,11 @@ package jp.gr.java_conf.mitchibu.applock;
 import android.app.Service;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.Vibrator;
 
 public class GuardService extends Service implements GuardWindow.OnPasswordListener, GuardWindow.OnCancelListener {
-	public static final String EXTRA_PACKAGE_NAME = GuardService.class.getName() + ".extra.PACKAGE_NAME";
-
 	private Vibrator vibrator;
 	private GuardWindow guardWindow;
 
@@ -28,7 +27,7 @@ public class GuardService extends Service implements GuardWindow.OnPasswordListe
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		guardWindow.setPackageName(intent.getStringExtra(EXTRA_PACKAGE_NAME));
+		guardWindow.setPackageName(intent.getData().getSchemeSpecificPart());
 		return START_REDELIVER_INTENT;
 	}
 
@@ -46,7 +45,7 @@ public class GuardService extends Service implements GuardWindow.OnPasswordListe
 	public boolean onPassword(CharSequence pass) {
 		boolean rc = pass.toString().equals("1116");
 		if(rc) {
-			stopSelf();
+			startService(new Intent(MainService.ACTION_DISMISS, Uri.fromParts("package", guardWindow.getPackageName(), null), this, MainService.class));
 		} else {
 			vibrator.vibrate(100);
 		}

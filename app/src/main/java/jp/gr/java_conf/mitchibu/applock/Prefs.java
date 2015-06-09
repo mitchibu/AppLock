@@ -8,18 +8,18 @@ import android.text.TextUtils;
 import java.util.Map;
 
 public class Prefs {
-	private static final String KEY_LAST_PACKAGE_NAME = Prefs.class.getName() + ".key.LAST_PACKAGE_NAME";
+	private static final String KEY_ALLOWED_PACKAGE_NAME = Prefs.class.getName() + ".key.ALLOWED_PACKAGE_NAME";
 
 	@SuppressLint("CommitPrefEdits")
-	public static void setLastPackageName(Context context, String packageName) {
+	public static void setAllowedPackageName(Context context, String packageName) {
 		SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-		if(TextUtils.isEmpty(packageName)) editor.remove(KEY_LAST_PACKAGE_NAME);
-		else editor.putString(KEY_LAST_PACKAGE_NAME, packageName);
+		if(TextUtils.isEmpty(packageName)) editor.remove(KEY_ALLOWED_PACKAGE_NAME);
+		else editor.putString(KEY_ALLOWED_PACKAGE_NAME, packageName);
 		editor.commit();
 	}
 
-	public static String getLastPackageName(Context context) {
-		return getSharedPreferences(context).getString(KEY_LAST_PACKAGE_NAME, null);
+	public static String getAllowedPackageName(Context context) {
+		return getSharedPreferences(context).getString(KEY_ALLOWED_PACKAGE_NAME, null);
 	}
 
 	public static boolean hasLockedPackage(Context context) {
