@@ -37,5 +37,5 @@
 		android:paddingTop="@android:dimen/app_icon_size"
 		android:paddingBottom="@android:dimen/app_icon_size"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"/>
+		android:layout_height="320dp"/>
 </LinearLayout>

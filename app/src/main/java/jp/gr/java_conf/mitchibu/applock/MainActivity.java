@@ -3,6 +3,7 @@ package jp.gr.java_conf.mitchibu.applock;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -23,11 +24,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<ResolveInfo>> {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<ResolveInfo>>, GuardWindow.OnPasscodeListener, GuardWindow.OnCancelListener {
 	private final List<ResolveInfo> list = new ArrayList<>();
 	private final Adapter adapter = new Adapter();
 
 	private PackageManager pm;
+	private GuardWindow guardWindow;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +37,30 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 		setContentView(R.layout.activity_main);
 		pm = getPackageManager();
 
+		guardWindow = new GuardWindow(this);
+		guardWindow.setOnPasscodeListener(this);
+		guardWindow.setOnCancelListener(this);
+		guardWindow.show();
+		guardWindow.setPackageName(getPackageName());
+
 		RecyclerView recyclerView = (RecyclerView)findViewById(android.R.id.list);
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 		recyclerView.setHasFixedSize(true);
 		recyclerView.setAdapter(adapter);
 
 		getSupportLoaderManager().initLoader(0, null, this).forceLoad();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if(guardWindow.isShowing()) guardWindow.dismiss();
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		guardWindow.onConfigurationChanged(newConfig);
 	}
 
 	@Override
@@ -90,6 +110,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	public void onLoaderReset(Loader<List<ResolveInfo>> loader) {
 		list.clear();
 		adapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onCancel(GuardWindow window) {
+		finish();
+	}
+
+	@Override
+	public boolean onPasscode(GuardWindow window, CharSequence pass) {
+		boolean rc = pass.toString().equals(Prefs.getPasscode(this));
+		if(rc) {
+			guardWindow.dismiss();
+		}
+		return rc;
 	}
 
 	class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {

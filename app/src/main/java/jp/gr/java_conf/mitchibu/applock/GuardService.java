@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.IBinder;
-import android.os.Vibrator;
 
-public class GuardService extends Service implements GuardWindow.OnPasswordListener, GuardWindow.OnCancelListener {
-	private Vibrator vibrator;
+public class GuardService extends Service implements GuardWindow.OnPasscodeListener, GuardWindow.OnCancelListener {
 	private GuardWindow guardWindow;
 
 	@Override
@@ -18,9 +16,8 @@ public class GuardService extends Service implements GuardWindow.OnPasswordListe
 
 	@Override
 	public void onCreate() {
-		vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
 		guardWindow = new GuardWindow(this);
-		guardWindow.setOnPasswordListener(this);
+		guardWindow.setOnPasscodeListener(this);
 		guardWindow.setOnCancelListener(this);
 		guardWindow.show();
 	}
@@ -42,23 +39,13 @@ public class GuardService extends Service implements GuardWindow.OnPasswordListe
 	}
 
 	@Override
-	public boolean onPassword(CharSequence pass) {
-		boolean rc = pass.toString().equals("1116");
-		if(rc) {
-			startService(new Intent(MainService.ACTION_DISMISS, Uri.fromParts("package", guardWindow.getPackageName(), null), this, MainService.class));
-		} else {
-			vibrator.vibrate(100);
-		}
-		return rc;
+	public boolean onPasscode(GuardWindow window, CharSequence pass) {
+		startService(new Intent(MainService.ACTION_DISMISS, Uri.fromParts("package", guardWindow.getPackageName(), null), this, MainService.class).putExtra(MainService.EXTRA_PASSCODE, pass.toString()));
+		return false;
 	}
 
 	@Override
-	public void onCancel() {
-		finish();
-		stopSelf();
-	}
-
-	private void finish() {
+	public void onCancel(GuardWindow window) {
 		Intent intent = new Intent(Intent.ACTION_MAIN);
 		intent.addCategory(Intent.CATEGORY_HOME);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);

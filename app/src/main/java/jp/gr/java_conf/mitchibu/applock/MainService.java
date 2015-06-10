@@ -13,12 +13,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 
 import java.util.List;
 
 public class MainService extends Service {
 	public static final String ACTION_DISMISS = MainService.class.getName() + ".action.DISMISS";
+	public static final String EXTRA_PASSCODE = MainService.class.getName() + ".extra.PASSCODE";
 
 	public static void start(Context context) {
 		context.startService(new Intent(context, MainService.class));
@@ -30,6 +32,7 @@ public class MainService extends Service {
 
 	private AlarmManager alarmManager;
 	private ActivityManager activityManager;
+	private Vibrator vibrator;
 	private BroadcastReceiver receiver = null;
 
 	@Override
@@ -42,6 +45,7 @@ public class MainService extends Service {
 	public void onCreate() {
 		alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
 		activityManager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+		vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
 
 		if(Prefs.hasLockedPackage(this)) {
 			IntentFilter filter = new IntentFilter();
@@ -74,8 +78,12 @@ public class MainService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		String action = intent.getAction();
 		if(ACTION_DISMISS.equals(action)) {
-			Prefs.setAllowedPackageName(this, intent.getData().getSchemeSpecificPart());
-			stopService(new Intent(this, GuardService.class));
+			if(intent.getStringExtra(EXTRA_PASSCODE).equals(Prefs.getPasscode(this))) {
+				Prefs.setAllowedPackageName(this, intent.getData().getSchemeSpecificPart());
+				stopService(new Intent(this, GuardService.class));
+			} else {
+				vibrator.vibrate(100);
+			}
 		} else {
 			String packageName = containsLockedPackage();
 			if(packageName != null) {
@@ -84,6 +92,7 @@ public class MainService extends Service {
 				}
 			} else {
 				Prefs.setAllowedPackageName(this, null);
+				stopService(new Intent(this, GuardService.class));
 			}
 		}
 		return START_STICKY;
