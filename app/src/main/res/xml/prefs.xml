@@ -1,0 +1,8 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<jp.gr.java_conf.mitchibu.applock.PasscodePreference
+		android:key="@string/key_password"
+		android:title="@string/title_password"/>
+	<EditTextPreference
+		android:key="@string/key_timeout"
+		android:title="@string/title_timeout"/>
+</PreferenceScreen>

@@ -3,6 +3,7 @@ package jp.gr.java_conf.mitchibu.applock;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import java.util.Map;
@@ -11,16 +12,9 @@ public class Prefs {
 	private static final String KEY_PASSCODE = Prefs.class.getName() + ".key.PASSCODE";
 	private static final String KEY_ALLOWED_PACKAGE_NAME = Prefs.class.getName() + ".key.ALLOWED_PACKAGE_NAME";
 
-	@SuppressLint("CommitPrefEdits")
-	public static void setPasscode(Context context, String passcode) {
-		SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-		if(TextUtils.isEmpty(passcode)) editor.remove(KEY_PASSCODE);
-		else editor.putString(KEY_PASSCODE, passcode);
-		editor.commit();
-	}
-
 	public static String getPasscode(Context context) {
-		return getSharedPreferences(context).getString(KEY_PASSCODE, "0000");
+		String key = context.getString(R.string.key_password);
+		return PreferenceManager.getDefaultSharedPreferences(context).getString(key, "0000");
 	}
 
 	@SuppressLint("CommitPrefEdits")

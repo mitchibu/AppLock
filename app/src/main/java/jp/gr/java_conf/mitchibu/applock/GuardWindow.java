@@ -15,10 +15,9 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-public class GuardWindow extends FloatingWindow implements View.OnKeyListener, View.OnClickListener {
+public class GuardWindow extends FloatingWindow implements View.OnKeyListener {
 	private TextView name;
 	private String packageName = null;
-	private boolean initialized = false;
 	private OnPasscodeListener onPasscodeListener = null;
 	private OnCancelListener onCancelListener = null;
 
@@ -28,11 +27,10 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 	}
 
 	public void onConfigurationChanged(@SuppressWarnings("UnusedParameters") Configuration newConfig) {
-		initialized = false;
 		dismiss();
 		setContentView(initView());
 		show();
-		setPackageName(packageName);
+		setPackageName(null);
 	}
 
 	public String getPackageName() {
@@ -40,7 +38,8 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 	}
 
 	public void setPackageName(String packageName) {
-		if(initialized) return;
+		if(packageName != null && packageName.equals(this.packageName)) return;
+		if(packageName == null) packageName = this.packageName;
 		PackageManager pm = getContext().getPackageManager();
 		try {
 			ApplicationInfo info = pm.getApplicationInfo(packageName, 0);
@@ -51,7 +50,6 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 			icon.setBounds(0, 0, size, size);
 			name.setCompoundDrawables(icon, null, null, null);
 			this.packageName = packageName;
-			initialized = true;
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -63,10 +61,6 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 
 	public void setOnCancelListener(OnCancelListener listener) {
 		onCancelListener = listener;
-	}
-
-	@Override
-	public void onClick(View v) {
 	}
 
 	@Override
@@ -82,7 +76,6 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 	private View initView() {
 		@SuppressLint("InflateParams")
 		View view = LayoutInflater.from(getContext()).inflate(R.layout.view_guard, null, false);
-		view.setOnClickListener(this);
 		view.setOnKeyListener(this);
 
 		Drawable bk = WallpaperManager.getInstance(getContext()).getFastDrawable();
@@ -98,10 +91,13 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 			@Override
 			public void onKey(CharSequence text) {
 				pass.append(text);
-				if(pass.length() == 4) {
-					if(onPasscodeListener == null || !onPasscodeListener.onPasscode(GuardWindow.this, pass.getText()))
-						pass.setText(null);
-				}
+			}
+		});
+		v.setOnEnterListener(new KeyPadView.OnEnterListener() {
+			@Override
+			public void onEnter() {
+				if(onPasscodeListener != null) onPasscodeListener.onPasscode(GuardWindow.this, pass.getText().toString());
+				pass.setText(null);
 			}
 		});
 		pad.addView(v, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER));
@@ -109,7 +105,7 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener, V
 	}
 
 	public interface OnPasscodeListener {
-		boolean onPasscode(GuardWindow window, CharSequence pass);
+		void onPasscode(GuardWindow window, String pass);
 	}
 
 	public interface OnCancelListener {

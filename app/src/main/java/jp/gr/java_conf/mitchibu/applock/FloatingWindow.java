@@ -21,7 +21,7 @@ public class FloatingWindow {
 
 		setWidth(WindowManager.LayoutParams.MATCH_PARENT);
 		setHeight(WindowManager.LayoutParams.MATCH_PARENT);
-		setType(WindowManager.LayoutParams.TYPE_PHONE);
+		setType(WindowManager.LayoutParams.TYPE_APPLICATION);
 		setFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 				| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
 				| WindowManager.LayoutParams.FLAG_FULLSCREEN

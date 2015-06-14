@@ -59,6 +59,7 @@ public class MainService extends Service {
 						startTimer();
 					} else if(Intent.ACTION_SCREEN_OFF.equals(action)) {
 						stopTimer();
+						hideGuard(true);
 					}
 				}
 			}, filter);
@@ -78,9 +79,12 @@ public class MainService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		String action = intent.getAction();
 		if(ACTION_DISMISS.equals(action)) {
-			if(intent.getStringExtra(EXTRA_PASSCODE).equals(Prefs.getPasscode(this))) {
+			String pass = intent.getStringExtra(EXTRA_PASSCODE);
+			if(pass == null) {
+				hideGuard(true);
+			} else if(pass.equals(Prefs.getPasscode(this))) {
 				Prefs.setAllowedPackageName(this, intent.getData().getSchemeSpecificPart());
-				stopService(new Intent(this, GuardService.class));
+				hideGuard(false);
 			} else {
 				vibrator.vibrate(100);
 			}
@@ -103,6 +107,16 @@ public class MainService extends Service {
 		if(receiver != null) unregisterReceiver(receiver);
 		stopTimer();
 		stopForeground(true);
+	}
+
+	private void hideGuard(boolean finish) {
+		if(finish) {
+			Intent intent = new Intent(Intent.ACTION_MAIN);
+			intent.addCategory(Intent.CATEGORY_HOME);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+			startActivity(intent);
+		}
+		stopService(new Intent(this, GuardService.class));
 	}
 
 	private void startTimer() {

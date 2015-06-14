@@ -1,0 +1,4 @@
+<resources>
+	<string name="key_password">password</string>
+	<string name="key_timeout">timeout</string>
+</resources>

@@ -1,19 +1,19 @@
 <resources>
-	<style name="AppTheme" parent="Theme.AppCompat">
+	<style name="AppTheme" parent="Theme.AppCompat.Light">
+		<item name="android:textColor">@android:color/black</item>
 	</style>
 
 	<style name="Key">
-		<item name="android:background">@null</item>
+		<item name="android:background">@drawable/key</item>
 		<item name="android:gravity">center</item>
 		<item name="android:textAppearance">?android:textAppearanceMedium</item>
+		<item name="android:textColor">@android:color/white</item>
 		<item name="android:layout_weight">1</item>
 		<item name="android:layout_width">0dp</item>
 		<item name="android:layout_height">match_parent</item>
 	</style>
-	<style name="Key.Space">
-		<item name="android:visibility">invisible</item>
-		<item name="android:layout_weight">1</item>
-		<item name="android:layout_width">0dp</item>
-		<item name="android:layout_height">match_parent</item>
+	<style name="Key.Enter" parent="Key">
+		<item name="android:textColor">@android:color/white</item>
+		<item name="android:layout_weight">2</item>
 	</style>
 </resources>
