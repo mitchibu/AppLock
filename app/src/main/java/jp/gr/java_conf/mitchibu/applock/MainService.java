@@ -59,7 +59,7 @@ public class MainService extends Service {
 						startTimer();
 					} else if(Intent.ACTION_SCREEN_OFF.equals(action)) {
 						stopTimer();
-						hideGuard(true);
+						hideGuard(containsLockedPackage() != null);
 					}
 				}
 			}, filter);
