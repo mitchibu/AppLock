@@ -3,7 +3,6 @@ package jp.gr.java_conf.mitchibu.applock;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +22,7 @@ public class MainActivity extends AppCompatActivity implements GuardWindow.OnPas
 		setContentView(R.layout.activity_main);
 		vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
 
-		guardWindow = new GuardWindow(getApplicationContext());
+		guardWindow = new GuardWindow(getApplicationContext(), Prefs.getLockType(this));
 		guardWindow.setType(WindowManager.LayoutParams.TYPE_PHONE);
 		guardWindow.setOnPasscodeListener(this);
 		guardWindow.setOnCancelListener(this);

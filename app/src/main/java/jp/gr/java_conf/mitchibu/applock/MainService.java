@@ -89,14 +89,17 @@ public class MainService extends Service {
 				vibrator.vibrate(100);
 			}
 		} else {
+			Intent guardIntent = new Intent(this, GuardService.class);
 			String packageName = containsLockedPackage();
 			if(packageName != null) {
 				if(!packageName.equals(Prefs.getAllowedPackageName(this))) {
-					startService(new Intent(this, GuardService.class).setData(Uri.fromParts("package", packageName, null)));
+					guardIntent.setData(Uri.fromParts("package", packageName, null));
+					guardIntent.putExtra(GuardService.EXTRA_LOCK_TYPE, Prefs.getLockType(this));
+					startService(guardIntent);
 				}
 			} else {
 				Prefs.setAllowedPackageName(this, null);
-				stopService(new Intent(this, GuardService.class));
+				stopService(guardIntent);
 			}
 		}
 		return START_STICKY;

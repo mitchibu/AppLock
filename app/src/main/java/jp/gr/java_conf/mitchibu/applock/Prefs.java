@@ -17,6 +17,11 @@ public class Prefs {
 		return PreferenceManager.getDefaultSharedPreferences(context).getString(key, "0000");
 	}
 
+	public static int getLockType(Context context) {
+		String key = context.getString(R.string.key_lock_type);
+		return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString(key, "1"));
+	}
+
 	@SuppressLint("CommitPrefEdits")
 	public static void setAllowedPackageName(Context context, String packageName) {
 		SharedPreferences.Editor editor = getSharedPreferences(context).edit();

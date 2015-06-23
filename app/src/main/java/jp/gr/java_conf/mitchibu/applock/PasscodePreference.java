@@ -12,8 +12,9 @@ public class PasscodePreference extends Preference {
 
 	public PasscodePreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		guardWindow = new GuardWindow(context);
+		guardWindow = new GuardWindow(context, 1);
 		guardWindow.setType(WindowManager.LayoutParams.TYPE_PHONE);
+		guardWindow.setPackageName(getContext().getPackageName());
 		guardWindow.setOnPasscodeListener(new GuardWindow.OnPasscodeListener() {
 			@Override
 			public void onPasscode(GuardWindow window, String pass) {

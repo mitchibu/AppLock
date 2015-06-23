@@ -8,6 +8,8 @@ import android.os.IBinder;
 import android.view.WindowManager;
 
 public class GuardService extends Service implements GuardWindow.OnPasscodeListener, GuardWindow.OnCancelListener {
+	public static final String EXTRA_LOCK_TYPE = GuardService.class.getName() + ".extra.LOCK_TYPE";
+
 	private GuardWindow guardWindow;
 
 	@Override
@@ -16,16 +18,14 @@ public class GuardService extends Service implements GuardWindow.OnPasscodeListe
 	}
 
 	@Override
-	public void onCreate() {
-		guardWindow = new GuardWindow(this);
-		guardWindow.setType(WindowManager.LayoutParams.TYPE_PHONE);
-		guardWindow.setOnPasscodeListener(this);
-		guardWindow.setOnCancelListener(this);
-		guardWindow.show();
-	}
-
-	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		if(guardWindow == null) {
+			guardWindow = new GuardWindow(this, intent.getIntExtra(EXTRA_LOCK_TYPE, 0));
+			guardWindow.setType(WindowManager.LayoutParams.TYPE_PHONE);
+			guardWindow.setOnPasscodeListener(this);
+			guardWindow.setOnCancelListener(this);
+			guardWindow.show();
+		}
 		guardWindow.setPackageName(intent.getData().getSchemeSpecificPart());
 		return START_NOT_STICKY;
 	}
@@ -42,7 +42,7 @@ public class GuardService extends Service implements GuardWindow.OnPasscodeListe
 
 	@Override
 	public void onPasscode(GuardWindow window, String pass) {
-		startService(new Intent(MainService.ACTION_DISMISS, Uri.fromParts("package", guardWindow.getPackageName(), null), this, MainService.class).putExtra(MainService.EXTRA_PASSCODE, pass.toString()));
+		startService(new Intent(MainService.ACTION_DISMISS, Uri.fromParts("package", guardWindow.getPackageName(), null), this, MainService.class).putExtra(MainService.EXTRA_PASSCODE, pass));
 	}
 
 	@Override

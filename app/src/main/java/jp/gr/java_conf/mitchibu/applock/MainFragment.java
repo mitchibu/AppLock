@@ -90,18 +90,19 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 				intent.setAction(Intent.ACTION_MAIN);
 				intent.addCategory(Intent.CATEGORY_LAUNCHER);
 				List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
+				List<ResolveInfo> tmp = new ArrayList<>();
 				for(ResolveInfo info : list) {
-					if(info.activityInfo.packageName.equals(getActivity().getPackageName())) {
-						list.remove(info);
+					if(!info.activityInfo.packageName.equals(getActivity().getPackageName())) {
+						tmp.add(info);
 					}
 				}
-				Collections.sort(list, new Comparator<ResolveInfo>() {
+				Collections.sort(tmp, new Comparator<ResolveInfo>() {
 					@Override
 					public int compare(ResolveInfo arg0, ResolveInfo arg1) {
 						return arg0.loadLabel(pm).toString().compareTo(arg1.loadLabel(pm).toString());
 					}
 				});
-				return list;
+				return tmp;
 			}
 		};
 	}

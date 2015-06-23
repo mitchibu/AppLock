@@ -15,14 +15,20 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.util.List;
+
 public class GuardWindow extends FloatingWindow implements View.OnKeyListener {
+	private final int type;
+
 	private TextView name;
+	private TextView pass;
 	private String packageName = null;
 	private OnPasscodeListener onPasscodeListener = null;
 	private OnCancelListener onCancelListener = null;
 
-	public GuardWindow(Context context) {
+	public GuardWindow(Context context, int type) {
 		super(context);
+		this.type = type;
 		setContentView(initView());
 	}
 
@@ -84,8 +90,25 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener {
 			view.setBackgroundDrawable(bk);
 
 		name = (TextView)view.findViewById(R.id.name);
-		final TextView pass = (TextView)view.findViewById(R.id.pass);
+		pass = (TextView)view.findViewById(R.id.pass);
+		pass.setVisibility(type == 0 ? View.VISIBLE : View.GONE);
 		FrameLayout pad = (FrameLayout)view.findViewById(R.id.pad);
+		View v;
+		switch(type) {
+		case 0:
+			v = initPin();
+			break;
+		case 1:
+			v = initPattern();
+			break;
+		default:
+			throw new RuntimeException();
+		}
+		pad.addView(v, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER));
+		return view;
+	}
+
+	private View initPin() {
 		KeyPadView v = new KeyPadView(getContext());
 		v.setOnKeyListener(new KeyPadView.OnKeyListener() {
 			@Override
@@ -96,14 +119,30 @@ public class GuardWindow extends FloatingWindow implements View.OnKeyListener {
 		v.setOnEnterListener(new KeyPadView.OnEnterListener() {
 			@Override
 			public void onEnter() {
-				if(onPasscodeListener != null) onPasscodeListener.onPasscode(GuardWindow.this, pass.getText().toString());
+				if(onPasscodeListener != null)
+					onPasscodeListener.onPasscode(GuardWindow.this, pass.getText().toString());
 				pass.setText(null);
 			}
 		});
-		pad.addView(v, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER));
-		return view;
+		return v;
 	}
 
+	private View initPattern() {
+		PatternPadView v = new PatternPadView(getContext());
+		v.setOnFinishedPatternListener(new PatternPadView.OnFinishedPatternListener() {
+			@Override
+			public void onFinishedPattern(List<Integer> pattern) {
+				if(onPasscodeListener != null) {
+					StringBuilder sb = new StringBuilder();
+					for(Integer i : pattern) {
+						sb.append(i).append(' ');
+					}
+					onPasscodeListener.onPasscode(GuardWindow.this, sb.toString());
+				}
+			}
+		});
+		return v;
+	}
 	public interface OnPasscodeListener {
 		void onPasscode(GuardWindow window, String pass);
 	}
