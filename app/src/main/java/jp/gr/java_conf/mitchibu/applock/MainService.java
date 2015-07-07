@@ -135,19 +135,39 @@ public class MainService extends Service {
 	}
 
 	private String containsLockedPackage() {
-		final List<ActivityManager.RunningAppProcessInfo> list = activityManager.getRunningAppProcesses();
-		if(list == null) return null;
+		if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+			List<ActivityManager.RunningTaskInfo> list = activityManager.getRunningTasks(1);
+			if(list == null || list.isEmpty()) return null;
 
-		for(ActivityManager.RunningAppProcessInfo info : list) {
-			if(info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.pkgList != null) {
-				Boolean state = null;
-				for(int i = 0; state == null && i < info.pkgList.length; ++i) {
-					state = Prefs.isLockedPackage(this, info.pkgList[i]);
-					if(state != null && state) return info.pkgList[i];
+			ComponentName cn = list.get(0).topActivity;
+			if(cn == null) return null;
+
+			String packageName = cn.getPackageName();
+			Boolean state = Prefs.isLockedPackage(this, packageName);
+			if(state == null) state = false;
+			return state ? packageName : null;
+		} else {
+			final List<ActivityManager.RunningAppProcessInfo> list = activityManager.getRunningAppProcesses();
+			if(list == null) return null;
+
+			for(ActivityManager.RunningAppProcessInfo info : list) {
+				if(isInterestingProcess()) {
+					Boolean state = null;
+					for(int i = 0; state == null && i < info.pkgList.length; ++i) {
+						state = Prefs.isLockedPackage(this, info.pkgList[i]);
+						if(state != null && state) return info.pkgList[i];
+					}
 				}
 			}
+			return null;
 		}
-		return null;
+	}
+
+	private boolean isInterestingProcess(ActivityManager.RunningAppProcessInfo info) {
+		if(info.pkgList == null) return false;
+		if(info.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) return false;
+		if(info.importanceReasonCode != ActivityManager.RunningAppProcessInfo.REASON_UNKNOWN) return false;
+		return true;
 	}
 
 	private void startForeground() {
